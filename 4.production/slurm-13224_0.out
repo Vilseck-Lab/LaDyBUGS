@@ -1,0 +1,22 @@
+
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+To initialize your shell, run
+
+    $ conda init <SHELL_NAME>
+
+Currently supported shells are:
+  - bash
+  - fish
+  - tcsh
+  - xonsh
+  - zsh
+  - powershell
+
+See 'conda init --help' for more information and options.
+
+IMPORTANT: You may need to close and restart your shell after running 'conda init'.
+
+
+/nfs/home/mrobo/anaconda3/envs/omm100/lib/python3.9/site-packages/simtk/openmm/app/internal/pdbstructure.py:443: UserWarning: WARNING: two consecutive residues with same number (ATOM   4698  OH2 TIP3    1      11.878  10.016   6.880  1.00  0.00      SOLV    , ATOM   4697 H126 LIG     1      52.368  32.492  31.940  1.00  0.00      LIG     )
+  warnings.warn("WARNING: two consecutive residues with same number (%s, %s)" % (atom, self._current_residue.atoms[-1]))
+slurmstepd-jv2: error: *** JOB 13224 ON jv2 CANCELLED AT 2022-02-14T14:17:34 DUE TO TIME LIMIT ***
