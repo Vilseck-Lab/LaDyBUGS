@@ -22,15 +22,16 @@ pressure = 1.01325 #pressure in bar
 stepsize = 2 * femtoseconds
 
 ## negs parameters
-numStepPerCycle = 100    ## number of Molecular Dynamics steps per numCycle run
-numCycle = 1000         ## number of Gibb Sampler Steps (500 = 500ps when numStepPerCycle is 500)
-numBiasLoops = 125         ## number of MBAR loops to complete
+numStepPerCycle = 100      ## number of Molecular Dynamics steps per Gibb Sampler step
+numCycle = 1000            ## number of Gibb Sampler steps 
+numBiasLoops = 125         ## number of MBAR break points to update ne-GSLD biases (occurs every numCycle steps)
+                           ## total length of sampling = numStepPerCycle * numCycle * numBiasLoops * stepsize (in fs)
 
-#exponential bias function variables # exp_bias = exp_mult * exp_base ** (counts[i] - lowest_count)
+#exponential bias function variables;  exp_bias = exp_mult * exp_base ** (counts[i] - lowest_count)
 pre_exp_bias = 100
 exp_base = 2.0     ## number to be exponentiated
 exp_mult = 1
-exp_start = 1      # the first loop (0-ordered) where exp_biasing is used  
+exp_start = 1      ## the first MBAR break point (0-ordered) where exp_biasing is used  
 
 
 ## read system
@@ -39,13 +40,12 @@ xml = f.read()
 f.close()
 system = XmlSerializer.deserialize(xml)
 
-## force group you want energies for
+## the force group to calculate energies of
 fgE=20
 
 ## parameters
 T = temp * kelvin
 beta = (temp * kb) ** -1.0
-#stepsize = 2 * femtoseconds
 
 ## MonteCarloBarostat
 mcbar = MonteCarloBarostat(pressure*bar,T,25)
@@ -89,7 +89,6 @@ for site in range(len(nsubs)):
     for sub in range(nsubs[site]):
         simulation.context.setParameter("lambda"+str(ibuff+1),Lstates[lambda_idx,ibuff]) 
         ibuff+=1
-
 
 # print beforemin.pdb
 state = simulation.context.getState(getPositions = True)
@@ -135,8 +134,8 @@ for site in range(len(nsubs)):
     for sub in range(nsubs[site]):
         simulation.context.setParameter("lambda"+str(ibuff+1),Lstates[lambda_idx,ibuff])
         ibuff+=1
-#integrator.step(5000) # 10 ps of sampling
-simulation.step(5000) # 10 ps of sampling
+
+simulation.step(5000) # 10 ps of sampling with 2 fs timestep
 
 state = simulation.context.getState(getEnergy = True, groups = {fgE})
 energyFG = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
@@ -161,7 +160,7 @@ for lam in range(Lstates.shape[0]):
     state = simulation.context.getState(getEnergy = True, groups = {fgE})
     energies[lam] = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole).value_in_unit(kilocalorie_per_mole)
 
-# EQ energies & lambda states are written to disk, but are subsequently overwritten once production begins!
+# EQ energies & lambda states are written to disk, but are overwritten once production begins
 #printState(0,Lstates[lambda_idx],energies) # print info to disk
 
 # sample lambdas at EQ coords
@@ -170,7 +169,7 @@ res=sampleLambda(energies)      # res returns a dictionary of 'prob' (probabilit
 
 
 # -----------------------------------
-##### Start Prod Sampling
+##### Start Production Sampling
 
 # initialize counts
 counts=np.zeros(Lstates.shape[0])
@@ -180,7 +179,7 @@ counts=np.zeros(Lstates.shape[0])
 simulation.reporters.append(StateDataReporter(stdout,numStepPerCycle,step=True,
                             potentialEnergy=True,temperature=True,volume=True))
 
-# Wang-Landau Lambda Dynamics
+# Non-Equilibrium Gibbs Sampler Lambda Dynamics
 time=0  # step counter
 for loop in range(numBiasLoops):
     # open bias, count, lambda, and energy files at the start of the loop
@@ -197,16 +196,18 @@ for loop in range(numBiasLoops):
                 simulation.context.setParameter("lambda"+str(ibuff+1),Lstates[res['idx'],ibuff])
                 ibuff+=1
 
-        # sample for "n" MD steps
+        # sample for "numStepPerCycle" MD steps
         simulation.step(numStepPerCycle)
 
         # save the energy
         state = simulation.context.getState(getEnergy = True, groups = {fgE})
         energyFG = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
-        foutput.write("%d %f %d [" % (i,energyFG.value_in_unit(kilocalorie_per_mole),res['idx']))
+        foutput.write("%d %f %d" % (i,energyFG.value_in_unit(kilocalorie_per_mole),res['idx']))
+        ##foutput.write(" [") ## for more information per step
         ##for lam in range(Lstates.shape[0]):
         ##    foutput.write(" %s" % (str(res['prob'][lam])))
-        foutput.write(" ]\n")
+        ##foutput.write(" ]")
+        foutput.write("\n")
         foutput.flush()
 
         # print coords to pdb for all endstates   
@@ -251,7 +252,6 @@ for loop in range(numBiasLoops):
             final_energies=np.copy(energies)
 
         # print energies 
-        #printState4(loop,Lstates[res['idx']],energies) # print info to disk
         for ee in range(len(energies)):
             efp.write("%f " % (energies[ee]))
         efp.write("\n")
@@ -300,12 +300,10 @@ for loop in range(numBiasLoops):
     energies=(energies+biases)*beta   # get reduced energies
     res=sampleLambda(energies)        # sample lambda with NEW biases
 
-    # no clean up for non-CUDA FastMBAR
-    # # clean up memory used by FastMBAR
+    # clean up memory used by FastMBAR (not needed for non-CUDA FastMBAR)
     cleanMEM()
     
-
-    # end output priting for this loop iteration
+    # end output printing for this loop iteration
     foutput.write("###### BIAS LOOP %d FINISHED ######\n" % (loop))
 
 foutput.close()
