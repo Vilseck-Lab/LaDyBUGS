@@ -1,22 +1,22 @@
+* Generate CHARMM patch files for ne-GSLD
+*
+
 set fnex = 5.5
 set builddir = prep
 set box = 83.0
 set temp = 298.15
 
-bomblev -2
 !! Read in toppar stream file
+bomblev -2
 stream @builddir/toppar.str
 bomblev 0
 read rtf append card name @builddir/core.rtf
 read param flex append card name @builddir/full_ligand.prm
 
-
 !! Reads coordinates and pdb file for the protein
 read sequ pdb name @{builddir}/cmet_pro.pdb
-!!generate SEGID first ACE last NMA setup warn
 generate PROA first NTER last CTER setup warn
 read coor pdb resid name @{builddir}/cmet_pro.pdb
-
 
 ic generate
 ic param
@@ -24,12 +24,7 @@ ic build
 hbuild sele hydrogen end
 auto angle dihe
 
-!! Reads coordinates and pdb file for the ligand
-!read sequ pdb name @builddir/core.pdb
-!generate @ligseg setup
-!read coor pdb resid name @builddir/core.pdb
-
-!! stream the ligand patches, affect the connectivity
+!! Load ligand + patches, affects the connectivity
 stream @builddir/lig_specific.str
 
 !! Load solvent
@@ -41,7 +36,6 @@ read sequ pdb name @{builddir}/cla.pdb
 generate CLA first none last none setup noangl nodihe
 read coor pdb resid name @{builddir}/cla.pdb
 
-
 read sequ pdb name @{builddir}/sod.pdb
 generate SOD first none last none setup noangl nodihe
 read coor pdb resid name @{builddir}/sod.pdb
@@ -50,7 +44,7 @@ print coor sele .not. init end
 
 bomblev 0
 
-!!!! For OpenMM, you are supposed to translate the box to the origin !!!!
+!! For OpenMM, translate the box to the origin
 calc box2 = @box / 2
 coor stat
 coor translate xdir @box2 ydir @box2 zdir @box2 select all end
