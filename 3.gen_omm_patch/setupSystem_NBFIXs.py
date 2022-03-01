@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 from simtk.openmm.app import PDBFile, CharmmPsfFile, CharmmParameterSet, CutoffPeriodic, HBonds
 from simtk.openmm import NonbondedForce, XmlSerializer, CustomNonbondedForce
 from simtk.unit import angstrom, nanometer, kilocalorie_per_mole, kilojoule_per_mole, elementary_charge, sqrt
@@ -17,10 +19,8 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
     if site2_check != 0:
         raise ValueError('support for multi-site has not been developed yet!')
 
-    #get list of all parameter files
-    
-    
-    # hard coded charmm parameter files we used in the paper
+    # get list of all parameter files
+    # hard coded charmm toppar files
     param_list = [prep_root+'/toppar/top_all36_prot.rtf',prep_root+'/toppar/par_all36m_prot.prm',
                     prep_root+'/toppar/top_all36_na.rtf',prep_root+'/toppar/par_all36_na.prm',
                     prep_root+'/toppar/top_all36_carb.rtf',prep_root+'/toppar/par_all36_carb.prm',
@@ -38,7 +38,6 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
     params = CharmmParameterSet(*param_list)
 
     # create the system
-
     system = psf.createSystem(params, nonbondedMethod=CutoffPeriodic,
                               solventDielectric=1.0, removeCMMotion=False,
                               nonbondedCutoff=1.2*nanometer, constraints=HBonds)
@@ -57,7 +56,8 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
     
 
     ## Set up the selections 
-    resid1=1
+    nsites=1                                          # number of sites
+    resid1=1                                          # resid number
     name=[[]]                                         # name[0] = environment (emtpy)
     sub2site = [0]
     # get atom names form sub_files, collect them into a list, append list to name
@@ -70,15 +70,16 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
                     atom = line.split()[2] # the 3rd column of the pdb is the atom name
                     atom_names.append(atom.upper())
         name.append(atom_names)
+    
+    #alternative method of making sub2site (needs numpy)
+    #sub2site = [0] 
+    #sub2site = sub2site + list(np.ones(len(sub_files),np.int8))
+    
     print('####### SITE NAMES #######')
     print(name)
     print('sub2site')
     print(sub2site)
-    nsites=1                                          # number of sites
-    #alternative method of making sub2site
-    #needs numpy
-    #sub2site = [0] 
-    #sub2site = sub2site + list(np.ones(len(sub_files),np.int8))
+    
     sele=[[] for i in range(0,len(name))]             #sele[0] = env indices
     sele_all=[]
     sele_env=[]
@@ -108,13 +109,6 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
         for i in range(len(key)):
             if key[i] not in nblist:
                 nblist.append(key[i])
-    #nbfix=False
-    #for i in range(system.getNumParticles()):
-    #    if psf.atom_list[i].attype in nblist:
-    #        nbfix=True
-    #        # This script does not accound for NBFIXs, so if they are needed for this system - DIE with ERROR
-    #        print(psf.atom_list[i],"has an AT of",psf.atom_list[i].attype," which MIGHT need an NBFIX ")
-
 
     ## get nonbonded parameters from NonbondedForce
     for force in system.getForces():
@@ -142,7 +136,7 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
           print(msg)
           quit()
 
-    # remove the NBFIX CustomNonbondedForce PSFmagic creates
+    # remove the NBFIX CustomNonbondedForce psf.createSystem makes
     for i in range(system.getNumForces()):
       if type(system.getForce(i)) == CustomNonbondedForce:
         system.removeForce(i)
@@ -232,11 +226,11 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
     for bond in psf.bond_list:
         bondlist.append([bond.atom1.idx, bond.atom2.idx])
 
-    # force equations taken from CHARMM/OpenMM Interface!
+    # force equations, matches the CHARMM/OpenMM Interface (J. Comp. Chem. 2009, 30, 1545-1615)
     # environment
     formulaenv='(step(Ron-r)*(ccnba*tr6*tr6-ccnbb*tr6+ccnbb*onoff3-ccnba*onoff6)+step(r-Ron)*step(Roff-r)*(cr12*rjunk6 - cr6*rjunk3)-step(r-Ron)*step(Ron-r)*(cr12*rjunk6 - cr6*rjunk3)+step(Ron-r)*ch*(r1+eadd)+(step(r-Ron)*step(Roff-r)-step(r-Ron)*step(Ron-r))*ch*( r1* (acoef - s2*(bcoef + s2*(cover3 + dover5*s2))) +const));ch=138.935456*charge1*charge2;const  = bcoef*Roff-acoef/Roff+cover3*off3+dover5*off5;dover5 = dcoef/5.0;dcoef  = 2.0*denom;ccoef  = 3.0*cover3;cover3 = -(c2onnb+c2ofnb)*denom;acoef  = off4*(c2ofnb-3.0*c2onnb)*denom;bcoef  = 6.0*onoff2*denom;eadd   = (onoff2*(Roff-Ron)-(off5-on3*c2onnb)/5.0)*8.0*denom;denom  = 1.0/(c2ofnb-c2onnb)^3;off4   = c2ofnb*c2ofnb;off5   = off3*c2ofnb;onoff2 = c2onnb*c2ofnb;cr6  = ccnbb*ofdif3*rjunk3;cr12 = ccnba*ofdif6*rjunk6;rjunk3 =r3-recof3;rjunk6 = tr6-recof6;r3 = r1*tr2;r1 = sqrt(tr2);tr6 = tr2 * tr2 * tr2;tr2 = 1.0/s2;s2 = r*r;ccnbb = lj06b(type1,type2);ccnba = lj12a(type1,type2);onoff3 = recof3/on3;onoff6 = recof6/on6;ofdif3 = off3/(off3 - on3);ofdif6 = off6/(off6 - on6);recof3 = 1.0/off3;on6 = on3*on3;on3 = c2onnb*Ron;recof6 = 1.0/off6;off6 = off3*off3;off3 = c2ofnb*Roff;c2ofnb = Roff*Roff;c2onnb = Ron*Ron;'
 
-    # soft core for alchemical atoms (use a modified softcore formula for when lambda = 1 (to avoid NaNs))
+    # soft core for alchemical atoms, matches function used for MSLD (J. Phys. Chem. B 2017, 121, 15, 3626–3635)
     softcore = "rp=step(r-rcsoft)*r+(1-step(r-rcsoft))*rcsoft*(-0.5*(r/(rcsoft+delta(1-scale)))^4+(r/(rcsoft+delta(1-scale)))^3+0.5);rcsoft = 2.0*sqrt(0.04)*(1.0-scale)"
     formulasc='(step(Ron-rp)*(ccnba*tr6*tr6-ccnbb*tr6+ccnbb*onoff3-ccnba*onoff6)+step(rp-Ron)*step(Roff-rp)*(cr12*rjunk6 - cr6*rjunk3)-step(rp-Ron)*step(Ron-rp)*(cr12*rjunk6 - cr6*rjunk3)+step(Ron-rp)*ch*(r1+eadd)+(step(rp-Ron)*step(Roff-rp)-step(rp-Ron)*step(Ron-rp))*ch*( r1* (acoef - s2*(bcoef + s2*(cover3 + dover5*s2))) + const));ch=138.935456*charge1*charge2;const  = bcoef*Roff-acoef/Roff+cover3*off3+dover5*off5;dover5 = dcoef/5.0;dcoef  = 2.0*denom;ccoef  = 3.0*cover3;cover3 = -(c2onnb+c2ofnb)*denom;acoef  = off4*(c2ofnb-3.0*c2onnb)*denom;bcoef  = 6.0*onoff2*denom;eadd   = (onoff2*(Roff-Ron)-(off5-on3*c2onnb)/5.0)*8.0*denom;denom  = 1.0/(c2ofnb-c2onnb)^3;off4   = c2ofnb*c2ofnb;off5   = off3*c2ofnb;onoff2 = c2onnb*c2ofnb;cr6  = ccnbb*ofdif3*rjunk3;cr12 = ccnba*ofdif6*rjunk6;rjunk3 = r3-recof3;rjunk6 = tr6-recof6;r3 = r1*tr2;r1 = sqrt(tr2);tr6 = tr2 * tr2 * tr2;tr2 = 1.0/s2;s2 = rp*rp;ccnbb = lj06b(type1,type2);ccnba = lj12a(type1,type2);onoff3 = recof3/on3;onoff6 = recof6/on6;ofdif3 = off3/(off3 - on3);ofdif6 = off6/(off6 - on6);recof3 = 1.0/off3;on6 = on3*on3;on3 = c2onnb*Ron;recof6 = 1.0/off6;off6 = off3*off3;off3 = c2ofnb*Roff;c2ofnb = Roff*Roff;c2onnb = Ron*Ron;'
 
@@ -272,8 +266,8 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
     nonbond[0].setCutoffDistance(1.2*nanometer)
     nonbond[0].createExclusionsFromBonds(bondlist, 3)
     excl={}
-    for i in range(0,nonbond[0].getNumExclusions()):    # Ryan uses excl lists like this so that he has only 4 custom nonbonded forces total
-      tmp = nonbond[0].getExclusionParticles(i)         # (rather than a separate CNBF for every block... like how I do it now)
+    for i in range(0,nonbond[0].getNumExclusions()):    
+      tmp = nonbond[0].getExclusionParticles(i)         
       for j in range(0,2):
         if tmp[j] in excl:
           excl[tmp[j]].append(tmp[1-j])
@@ -300,7 +294,7 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
     nonbond[1].addPerParticleParameter('type')
     nonbond[1].addPerParticleParameter('subs')
     nonbond[1].addPerParticleParameter('sites')
-    nonbond[1].addGlobalParameter("Roff", 1.2) # why originally commented out?
+    nonbond[1].addGlobalParameter("Roff", 1.2) 
     nonbond[1].addGlobalParameter("Ron", 1.0)
     for i in range(1,len(sele)):
       nonbond[1].addGlobalParameter("lambda"+str(i), 0.000)
@@ -386,11 +380,11 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
         break
 
     if trunc==True:
-        ## Add harmonic restraints in for peptide caps!!
+        ## Add harmonic restraints in for truncated peptide caps
         # read in rigid_atom_indices
         rigid_idx=[]
         rigid_dict={}
-        fp=open('rigid_idx.txt','r')
+        fp=open('rigid_idx.txt','r')   # user generated list of the format "ID# SEGID RESID RESN ATOMNAME" (ex. "0 PA01 16 ASN N")
         for line in fp:
             tmp=line.split()
             rigid_idx.append(int(tmp[0]))
@@ -409,7 +403,7 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
                 (psf.atom_list[i].residue.resname == rigid_dict[i]['RESN']) and \
                 (psf.atom_list[i].residue.idx == rigid_dict[i]['RESID'])):
                 # add the particle
-                k=10*kilocalorie/(mole*angstrom*angstrom)  # I think this is what I used for CHARMM
+                k=10*kilocalorie/(mole*angstrom*angstrom)  # Similar to what is used in CHARMM
                 k=k*psf.atom_list[i].mass._value           # mass weighted (without the mass unit)
                 k.value_in_unit(kilojoule/(mole*nanometer*nanometer))  # OMM units
                 x0=pdb.positions[i][0]
@@ -432,7 +426,7 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
         system.addForce(cons_harm)
 
 
-    ## save the system for easy repeats
+    ## save the system 
     xml = XmlSerializer.serialize(system)
     f = open("./omm_patch.xml", 'w')
     f.write(xml)
@@ -440,27 +434,6 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
 
     print("system set up")
 
-    # # exit()
-    # #
-    # ## print some energies to test correct energy evaluation vs CHARMM
-    # integrator = LangevinIntegrator(298.15*kelvin, 10/picosecond, 0.002*picosecond)
-    # platform = Platform.getPlatformByName('Reference')
-    # context = Context(system, integrator, platform)
-    # context.setPositions(pdb.positions)
-    # context.setParameter("lambda1", 1.0)
-    # context.setParameter("lambda2", 0.0)
-    # state = context.getState(getEnergy = True, groups = {10})
-    # energy10 = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
-    # state = context.getState(getEnergy = True, groups = {20})
-    # energy20 = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
-    # state = context.getState(getEnergy = True)
-    # energytotal = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
-    # state = context.getState(getEnergy = True, groups = {30})
-    # energy30 = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
-    # state = context.getState(getEnergy = True)
-    # energy40 = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
-    # print energy10,energy20,energy30,energy40
-    # #
-    # # exit()
+   
 if __name__ == "__main__":
     setup_NBFIXs(83, 'prep/', trunc=True)
