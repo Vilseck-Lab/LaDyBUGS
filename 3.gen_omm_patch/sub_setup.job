@@ -7,21 +7,15 @@
 #SBATCH --ntasks-per-node=1
 ######SBATCH --gres=gpu:1
 
-# You have to specify which gpu you want your job to run with
-#####SBATCH --gres=gpu:p100:1  (runs 50 mins per ns)
-#####SBATCH --gres=gpu:v100:1  (runs 25 mins per ns)
-
-#module unload python
-#module load anaconda cudatoolkit/10.0
+# Load OpenMM environment
 conda activate omm100-rdkit
 
-# Setup necessary directories
-#cp ../gen_charmm_psf/patch.* ./
-#ln -s ../../solv_prep/ ./
+# Setup necessary files & directories
+cp ../2.gen_charmm_psf/patch.* ./
+ln -s ../2.gen_charmm_psf/prep/ ./
 
 # Run the simulation
 time python setupSystem_NBFIXs.py
-
 
 # Finished 
 echo "FINISHED"
