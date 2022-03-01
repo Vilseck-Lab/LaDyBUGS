@@ -14,8 +14,8 @@ ulimit -l unlimited
 module load intel/2021.1.2
 module load charmm/c45b2_openmm_intel
 
-export OMP_NUM_THREADS=4
 # Run the simulation
+export OMP_NUM_THREADS=4
 mpirun -np 1 $CHARMMEXEC -i genpsf.inp -o genpsf.out
 
 # Finished
