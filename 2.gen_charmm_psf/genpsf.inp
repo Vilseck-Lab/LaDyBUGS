@@ -1,4 +1,4 @@
-* Generate CHARMM patch files for ne-GSLD
+* Generate CHARMM patch files for LaDyBUGS
 *
 
 set fnex = 5.5
