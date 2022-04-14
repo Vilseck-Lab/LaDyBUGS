@@ -1,4 +1,4 @@
-# ne-gsld
-Scripts for running non-equilibrium Gibbs Sampler Lambda Dynamics
+# LaDyBUGS
+Scripts for running Lambda Dynamics with Bias Updated Gibbs Sampling
 
-THIS IS A TEST TO SEE IF I CAN CHANGE FILES
+
