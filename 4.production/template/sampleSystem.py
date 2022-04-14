@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Non-Equilibrium Gibbs Sampler Lambda Dynamics + MBAR in OpenMM
+# Lambda Dynamics with Bias Updated Gibbs Sampling + MBAR in OpenMM
 
 from simtk.openmm.app import Simulation, CharmmPsfFile, PDBFile, StateDataReporter
 from simtk.openmm import XmlSerializer, MonteCarloBarostat, LangevinIntegrator, Platform
@@ -21,10 +21,10 @@ temp = 298.15 # temp in kelvin
 pressure = 1.01325 #pressure in bar
 stepsize = 2 * femtoseconds
 
-## negs parameters
+## negs parameters         ## This example will run for 25 ns
 numStepPerCycle = 100      ## number of Molecular Dynamics steps per Gibb Sampler step
 numCycle = 1000            ## number of Gibb Sampler steps 
-numBiasLoops = 125         ## number of MBAR break points to update ne-GSLD biases (occurs every numCycle steps)
+numBiasLoops = 125         ## number of MBAR break points to update LaDyBUGS biases (occurs every numCycle steps)
                            ## total length of sampling = numStepPerCycle * numCycle * numBiasLoops * stepsize (in fs)
 
 #exponential bias function variables;  exp_bias = exp_mult * exp_base ** (counts[i] - lowest_count)
@@ -179,7 +179,7 @@ counts=np.zeros(Lstates.shape[0])
 simulation.reporters.append(StateDataReporter(stdout,numStepPerCycle,step=True,
                             potentialEnergy=True,temperature=True,volume=True))
 
-# Non-Equilibrium Gibbs Sampler Lambda Dynamics
+# Lambda Dynamics with Bias Updated Gibbs Sampling
 time=0  # step counter
 for loop in range(numBiasLoops):
     # open bias, count, lambda, and energy files at the start of the loop
