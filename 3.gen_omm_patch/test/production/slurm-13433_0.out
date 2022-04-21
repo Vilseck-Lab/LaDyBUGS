@@ -1,0 +1,27 @@
+
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+To initialize your shell, run
+
+    $ conda init <SHELL_NAME>
+
+Currently supported shells are:
+  - bash
+  - fish
+  - tcsh
+  - xonsh
+  - zsh
+  - powershell
+
+See 'conda init --help' for more information and options.
+
+IMPORTANT: You may need to close and restart your shell after running 'conda init'.
+
+
+mkdir: cannot create directory ‘run-00’: File exists
+/nfs/home/mrobo/anaconda3/envs/omm100/lib/python3.9/site-packages/simtk/openmm/app/internal/pdbstructure.py:443: UserWarning: WARNING: two consecutive residues with same number (ATOM   4258  OH2 TIP3    1      11.847   9.998   6.833  1.00  0.00      SOLV    , ATOM   4257 H080 LIG     1      44.259  42.019  46.172  1.00  0.00      LIG     )
+  warnings.warn("WARNING: two consecutive residues with same number (%s, %s)" % (atom, self._current_residue.atoms[-1]))
+
+real	538m0.803s
+user	310m23.816s
+sys	224m8.782s
+FINISHED
