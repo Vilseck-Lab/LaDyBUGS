@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Non-Equilibrium Gibbs Sampler Lambda Dynamics + MBAR in OpenMM
+# Lambda Dynamics with Bias Updated Gibbs Sampling + MBAR in OpenMM
 
 from simtk.openmm.app import Simulation, CharmmPsfFile, PDBFile, StateDataReporter
 from simtk.openmm import XmlSerializer, MonteCarloBarostat, LangevinIntegrator, Platform
@@ -17,23 +17,28 @@ lstate_file = './LambdaStates.txt'
 
 ## MD parameters
 kb = 1.987204259 * 0.001 # kcal/(mol*K)
-temp = 298.15 # temp in kelvin
-pressure = 1.01325 #pressure in bar
+temp = 298.15            # temp in kelvin
+pressure = 1.01325       # pressure in bar
 stepsize = 2 * femtoseconds
 
-## negs parameters
-numStepPerCycle = 100    ## number of Molecular Dynamics steps per numCycle run
-numCycle = 1000         ## number of Gibb Sampler Steps (500 = 500ps when numStepPerCycle is 500)
-numBiasLoops = 125         ## number of MBAR loops to complete
+## Endstate Info
+nsubs=[6]  # number of states used in this single-site example
+#nsubs[7,3] # example 2-site system with 7 endstates on site1 and 3 endstates on site2
+
+## LaDyBUGS parameters ## 15 ns simulation example
+numStepPerCycle = 100  ## number of Molecular Dynamics steps per numCycle run
+numCycle = 1000        ## number of Gibb Sampler Steps 
+numBiasLoops = 75      ## number of MBAR loops to complete
+## total simulation time = stepsize * numStepPerCycle * numCycle * numBiasLoops
 
 #exponential bias function variables # exp_bias = exp_mult * exp_base ** (counts[i] - lowest_count)
-pre_exp_bias = 100
-exp_base = 2.0     ## number to be exponentiated
+pre_exp_bias = 100  ## flat bias to be used prior to exp_biasing
+exp_base = 2.0      ## number to be exponentiated
 exp_mult = 1
-exp_start = 1      # the first loop (0-ordered) where exp_biasing is used  
+exp_start = 1       ## the first loop (0-ordered) where exp_biasing is used  
 
 
-## read system
+## read system that was created in step 3 
 f = open(xml_file,'r')
 xml = f.read()
 f.close()
@@ -51,7 +56,7 @@ beta = (temp * kb) ** -1.0
 mcbar = MonteCarloBarostat(pressure*bar,T,25)
 system.addForce(mcbar)
 
-## read coordinate from pdb file
+## read coordinates from pdb file
 psf = CharmmPsfFile(psf_file)
 pdb = PDBFile(pdb_file)
 
@@ -65,8 +70,10 @@ simulation=Simulation(pdb.topology,system,integrator,platform)
 simulation.context.setPositions(pdb.positions)
 
 ## Load in pre-built lambda states
-nsubs=[6] # MOVE TO TOP
-endstates=[i for i in range(nsubs[0])] # specific to a single site system
+if len(nsubs) == 1:
+    endstates=[i for i in range(nsubs[0])] # specific to a single site system
+elif len(nsubs) > 1:
+    endstates=[i for i in range(nsubs[0])] # WHAT DO WE DO HERE?!?!?!?!?!?
 Lstates=np.loadtxt(lstate_file)
 print("\nThere are",Lstates.shape[0],"lambda states\n")
 print("These are the endstates:",endstates,"\n")
@@ -129,13 +136,12 @@ fp.close()
 foutput=open("output",'w')
 foutput.write("Step energy lambda_index\n")
 
-# initial equilibrium
+# initial equilibrium # equilibrate for 10 ps
 ibuff=0
 for site in range(len(nsubs)):
     for sub in range(nsubs[site]):
         simulation.context.setParameter("lambda"+str(ibuff+1),Lstates[lambda_idx,ibuff])
         ibuff+=1
-#integrator.step(5000) # 10 ps of sampling
 simulation.step(5000) # 10 ps of sampling
 
 state = simulation.context.getState(getEnergy = True, groups = {fgE})
@@ -179,8 +185,7 @@ counts=np.zeros(Lstates.shape[0])
 #simulation.reporters.append(PDBReporter('output.pdb',numStepPerCycle))
 simulation.reporters.append(StateDataReporter(stdout,numStepPerCycle,step=True,
                             potentialEnergy=True,temperature=True,volume=True))
-
-# Wang-Landau Lambda Dynamics
+ 
 time=0  # step counter
 for loop in range(numBiasLoops):
     # open bias, count, lambda, and energy files at the start of the loop
@@ -288,10 +293,10 @@ for loop in range(numBiasLoops):
         tfp.write("%d %f %d\n" % (BC,biases[BC],counts[BC]))
     tfp.close()
 
-    # calculate FastMBAR free energies, load those in as new biases, and resample lambdas again
+    # calculate FastMBAR free energies, update biases, and then resample lambdas again
     newbiases=calcFastMBAR(Lstates.shape[0],beta,numCycle,(loop+1))
     if loop + 1 < exp_start : 
-        biases=np.copy(newbiases)
+        biases=np.copy(newbiases) # keep adding flat bias
     else:
         bias_fill = np.copy(newbiases)    # for use in setting floor of exponential biases
         update_exp_biases(biases, bias_fill, counts, exp_base, exp_mult) # this function changes the values in 'biases'
