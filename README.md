@@ -1,4 +1,4 @@
-# LaDyBUGS
-Scripts for running Lambda Dynamics with Bias Updated Gibbs Sampling
 
+# Lambda Dynamics with Bias Updated Gibbs Sampling (LaDyBUGS)
+Scripts for running LaDyBUGS Simulations
 
