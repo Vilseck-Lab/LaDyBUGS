@@ -40,7 +40,7 @@ def unsampledFastMBAR():
 def calcFastMBAR(lambstates,beta,numCycle,numBiasLoops):
     do_cuda=True
     do_cuda_batch=False
-    do_bootstrap=True
+    do_bootstrap=False
 
 
     print("Running FastMBAR after",numCycle*numBiasLoops,"steps")
