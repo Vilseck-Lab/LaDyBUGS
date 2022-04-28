@@ -1,2 +1,0 @@
-These files were copied from the CHARMM git repository on 7/11/20 from charmm_gpu/toppar
-(~/charmm/toppar)
