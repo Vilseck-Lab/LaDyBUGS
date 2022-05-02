@@ -7,6 +7,10 @@ from sys import stdout, exit, stderr
 from glob import glob
 #import numpy as np
 
+boxsize = 83
+prep_root = "prep/"
+trunc = False
+
 def setup_NBFIXs(boxsize, prep_root, trunc=False):
     
     #### (1) Load Charmm PSF/PDB structure files & set up the system ####
@@ -436,4 +440,4 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
 
    
 if __name__ == "__main__":
-    setup_NBFIXs(83, 'prep/', trunc=True)
+    setup_NBFIXs(boxsize, prep_root, trunc=trunc)
