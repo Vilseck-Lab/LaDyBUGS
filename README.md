@@ -9,21 +9,21 @@ To clone this repository:
 
 You can use anaconda to set up a python environment for LaDyBUGS.
 
-*Install OpenMM*
-`conda create --name omm100`
-`conda activate omm100`
-`conda install -c omnia/label/cuda100 -c conda-forge openmm`
+*Install OpenMM* <br>
+`conda create --name omm100` <br>
+`conda activate omm100`<br>
+`conda install -c omnia/label/cuda100 -c conda-forge openmm` <br>
 
-*Install FastMBAR*
-In the same environment:
-`conda install pytorch==1.2.0 torchvision==0.4.0 cudatoolkit=10.0 -c pytorch`
-`pip install FastMBAR`
+*Install FastMBAR* <br>
+In the same environment: <br>
+`conda install pytorch==1.2.0 torchvision==0.4.0 cudatoolkit=10.0 -c pytorch` <br>
+`pip install FastMBAR`<br>
 
-*Other Requirements*
+*Other Requirements* <br>
 Some version of CHARMM is needed to generate the psf file. 
 
 # Step 0: Create Hybrid Topology
-Use the msld-py-prep repository to create a CHARMM hybrid topology. A tutorial for this process can be found in that repository.
+Use the msld-py-prep repository to create a CHARMM hybrid topology. A tutorial for this process can be found in that repository. <br>
 `https://github.com/Vilseck-Lab/msld-py-prep`
 
 Be sure that the files in "toppar/" match the version of cgenff that you use for the parameterization process.
