@@ -23,8 +23,8 @@ stepsize = 2 * femtoseconds
 
 ## LaDyBUGS sampling parameters  (This example will run for 25 ns)
 nsubs=[6]                  ## number of substituents
-numStepPerCycle = 100      ## number of Molecular Dynamics steps per Gibb Sampler step
-numCycle = 1000            ## number of Gibb Sampler steps between bias updates
+numStepPerCycle = 100      ## number of Molecular Dynamics steps per Gibbs Sampler step
+numCycle = 1000            ## number of Gibbs Sampler steps between bias updates
 numBiasLoops = 125         ## number of bias updates with FastMBAR (occurs every numCycle steps)
                            ## total length of sampling = numStepPerCycle * numCycle * numBiasLoops * stepsize (in fs)
 
@@ -141,9 +141,9 @@ state = simulation.context.getState(getEnergy = True, groups = {fgE})
 energyFG = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
 foutput.write("EQ %f %d\n" % (energyFG.value_in_unit(kilocalorie_per_mole),lambda_idx))
 
-# print pdb    
+# print pdb    # I never use traj.eq.pdb. Is this worth keeping? Should we put it in frames?
 state = simulation.context.getState(getPositions = True)
-fp=open("dcd/traj.EQ.pdb",'w')
+fp=open("frames/traj.EQ.pdb",'w')
 PDBFile.writeFile(psf.topology,state.getPositions(),fp)
 fp.close()
 
@@ -213,8 +213,8 @@ for loop in range(numBiasLoops):
         # print coords to pdb for all endstates   
         if res['idx'] in endstates:
             state = simulation.context.getState(getPositions = True)
-            #fp=open('dcd/state.'+str(res['idx'])+'.traj.'+str(loop)+'.'+str(i)+'.pdb','w')
-            fp=open('dcd/state.'+str(res['idx'])+'.time.'+str(time)+'.pdb','w')
+            #fp=open('frames/state.'+str(res['idx'])+'.traj.'+str(loop)+'.'+str(i)+'.pdb','w')
+            fp=open('frames/state.'+str(res['idx'])+'.time.'+str(time)+'.pdb','w')
             PDBFile.writeFile(psf.topology,state.getPositions(),fp)
             fp.close()
 
