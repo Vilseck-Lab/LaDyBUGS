@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 from simtk.openmm.app import PDBFile, CharmmPsfFile, CharmmParameterSet, CutoffPeriodic, HBonds
-from simtk.openmm import NonbondedForce, XmlSerializer, CustomNonbondedForce
-from simtk.unit import angstrom, nanometer, kilocalorie_per_mole, kilojoule_per_mole, elementary_charge, sqrt
+from simtk.openmm import NonbondedForce, XmlSerializer, CustomNonbondedForce, CustomBondForce, Discrete2DFunction, CustomExternalForce
+from simtk.unit import angstrom, nanometer, kilocalorie_per_mole, kilojoule_per_mole, elementary_charge, sqrt, kilojoule, mole
 from sys import stdout, exit, stderr
 from glob import glob
 #import numpy as np

@@ -38,6 +38,7 @@ You can then run "genpsf.inp" through CHARMM to generate the patch files ("patch
 
 # Step 2: Create OpenMM patch, generate lambda states
 Change the "nsubs" value in "generate_LambdaStates.py" to match the number of substituents you are working with.
+Run the generate_LambdaStates.py script with python to generate the set of lambda states.
 
 Make sure that the "boxsize" variable in "setupOMMSystem.py" matches your system size.
 

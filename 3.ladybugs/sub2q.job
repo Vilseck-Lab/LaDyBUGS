@@ -20,7 +20,7 @@ cd $dirname
 cp ../template/* .
 
 # Setup the necessary directories
-if [ ! -d dcd ]; then mkdir dcd; fi
+if [ ! -d frames ]; then mkdir frames; fi
 if [ ! -d lambda_energies ]; then mkdir lambda_energies; fi
 if [ ! -d mbar_results ]; then mkdir mbar_results; fi
 if [ ! -d checkpoints ]; then mkdir checkpoints; fi

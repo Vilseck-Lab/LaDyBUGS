@@ -1,11 +1,15 @@
 #! /usr/bin/env python
 
 from simtk.openmm.app import PDBFile, CharmmPsfFile, CharmmParameterSet, CutoffPeriodic, HBonds
-from simtk.openmm import NonbondedForce, XmlSerializer, CustomNonbondedForce
-from simtk.unit import angstrom, nanometer, kilocalorie_per_mole, kilojoule_per_mole, elementary_charge, sqrt
+from simtk.openmm import NonbondedForce, XmlSerializer, CustomNonbondedForce, CustomBondForce, Discrete2DFunction, CustomExternalForce
+from simtk.unit import angstrom, nanometer, kilocalorie_per_mole, kilojoule_per_mole, elementary_charge, sqrt, kilojoule, mole
 from sys import stdout, exit, stderr
 from glob import glob
 #import numpy as np
+
+boxsize = 83
+prep_root = "prep/"
+trunc = False
 
 def setup_NBFIXs(boxsize, prep_root, trunc=False):
     
@@ -428,7 +432,7 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
 
     ## save the system 
     xml = XmlSerializer.serialize(system)
-    f = open("./omm_patch.xml", 'w')
+    f = open("./omm_system.xml", 'w')
     f.write(xml)
     f.close()
 
@@ -436,4 +440,4 @@ def setup_NBFIXs(boxsize, prep_root, trunc=False):
 
    
 if __name__ == "__main__":
-    setup_NBFIXs(83, 'prep/', trunc=True)
+    setup_NBFIXs(boxsize, prep_root, trunc=trunc)
