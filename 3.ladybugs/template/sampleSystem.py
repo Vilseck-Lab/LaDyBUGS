@@ -141,7 +141,7 @@ state = simulation.context.getState(getEnergy = True, groups = {fgE})
 energyFG = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
 foutput.write("EQ %f %d\n" % (energyFG.value_in_unit(kilocalorie_per_mole),lambda_idx))
 
-# print pdb    # I never use traj.eq.pdb. Is this worth keeping? Should we put it in frames?
+# print pdb    
 state = simulation.context.getState(getPositions = True)
 fp=open("frames/traj.EQ.pdb",'w')
 PDBFile.writeFile(psf.topology,state.getPositions(),fp)
