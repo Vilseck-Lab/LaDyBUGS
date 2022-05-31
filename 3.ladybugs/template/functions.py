@@ -42,7 +42,7 @@ def calcFastMBAR(lambstates,beta,numCycle,numBiasLoops):
     N_k=np.zeros(lambstates, dtype=int)
  
     ibuff = 0
-    #we should really just record the index that was sampled at each GS step
+    # record the index that was sampled at each GS step
     list_sampled = [] # gives the index of lambda state that was sampled at each GS step
     for loop in range(numBiasLoops):
         # Assemble the counts
@@ -79,7 +79,7 @@ def calcFastMBAR(lambstates,beta,numCycle,numBiasLoops):
             SamIDX[n]=ibuff
             Usampled[ibuff,:]=u_kn[n,:]
             ibuff+=1
-            Nsampled.append(N_k[n]) # keeps GSLD counts
+            Nsampled.append(N_k[n]) # keeps counts
     Nsampled=np.asarray(Nsampled)
 
     # trim off empty values
