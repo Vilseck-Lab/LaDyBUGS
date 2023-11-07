@@ -1,0 +1,147 @@
+* Generate CHARMM patch files for LaDyBUGS
+*
+
+set builddir = prep
+set box = 67.0
+set temp = 298.15
+set ligseg = lig
+set resnum = 1
+
+! perturbation variables are set via the command line
+! including: nsites, nsubs(1..n), nblocks
+
+!! Read in toppar stream file
+bomblev -2
+stream @builddir/toppar.str
+read rtf append card name @builddir/core.rtf
+read param flex append card name @builddir/full_ligand.prm
+
+!! Reads coordinates and pdb file for the protein 
+read sequ pdb name @{builddir}/proa.pdb          
+generate PROA first NTER last CTER setup warn    
+read coor pdb resid name @{builddir}/proa.pdb    
+
+ic generate
+ic param
+ic build
+hbuild sele hydrogen end
+auto angle dihe
+
+!! Reads coordinates and pdb file for the ligand (files obtained from msld_py_prep.py)
+read sequ pdb name @builddir/core.pdb
+generate @ligseg setup
+read coor pdb resid name @builddir/core.pdb
+
+!! Read in the ligand patch rtf files
+set ii = 1
+label rtfloop1
+if @ii .le. @nsites then
+   set jj = 1
+   label rtfloop2
+   if @jj .le. @nsubs@@ii then
+
+      read rtf append card name @builddir/site@{ii}_sub@@{jj}_pres.rtf
+
+      calc jj = @jj + 1
+      goto rtfloop2
+   endif
+   calc ii = @ii + 1
+   goto rtfloop1
+endif
+
+!! Read in the ligand fragment pdb files
+ic generate
+set ii = 1
+label patchloop1
+if @ii .le. @nsites then
+   set jj = 1
+   label patchloop2
+   if @jj .le. @nsubs@@ii then
+
+      patch p@{ii}_@@{jj} @ligseg @resnum setup
+      read coor pdb resid name @builddir/site@{ii}_sub@@{jj}_frag.pdb
+      ic param
+      ic build
+
+      calc jj = @jj + 1
+      goto patchloop2
+   endif
+   calc ii = @ii + 1
+   goto patchloop1
+endif
+
+!! Read in LonePair sites (if applicable)
+stream @builddir/lpsites.inp
+
+!! Define MSLD substituent selections
+stream @builddir/msld_sele.str
+
+auto angle dihe  !! do not call after deleting sub-sub terms or loading in water
+bomblev -1
+
+!! Delete angles and dihedrals between alchemical groups
+set ii = 1
+label deletesiteloop
+if @ii .le. @nsites then
+   set jj = 1
+   label delete1loop
+   if @jj .le. @nsubs@@ii then
+      calc kk = @jj + 1
+      label delete2loop
+      if @kk .le. @nsubs@@ii then
+
+         dele connectivity sele ( site@{ii}_sub@@jj ) show end sele ( site@{ii}_sub@@kk ) show end
+
+         calc kk = @kk + 1
+         goto delete2loop
+      endif
+      calc jj = @jj + 1
+      goto delete1loop
+   endif
+   calc ii = @ii + 1
+   goto deletesiteloop
+endif
+
+!! System specific deletions (e.g., for linear groups: cyano & alkyne)
+!! dele dihe sele (atom LIG 1 ATOMNAME) show end
+
+!! Load solvent and ion files
+read sequ pdb name @{builddir}/wata.pdb                    
+generate WATA first none last none setup noangl nodihe     
+read coor pdb resid name @{builddir}/wata.pdb              
+
+read sequ pdb name @{builddir}/solv.pdb                    
+generate SOLV first none last none setup noangl nodihe     
+read coor pdb resid name @{builddir}/solv.pdb              
+
+read sequ pdb name @{builddir}/cla.pdb                    
+generate CLA  first none last none setup noangl nodihe    
+read coor pdb resid name @{builddir}/cla.pdb              
+
+read sequ pdb name @{builddir}/sod.pdb                    
+generate SOD  first none last none setup noangl nodihe    
+read coor pdb resid name @{builddir}/sod.pdb              
+
+print coor sele .not. init end
+
+bomblev 0
+
+!! For OpenMM, translate the box to the origin
+calc box2 = @box / 2
+coor stat
+coor translate xdir @box2 ydir @box2 zdir @box2 select all end
+
+!! Write Initial System to Disk
+write psf card name patch.psf
+* patch psf file
+*
+write coor pdb card name patch.pdb
+* patch pdb file
+*
+write coor card name patch.crd
+* patch crd file
+*
+
+
+stop
+
