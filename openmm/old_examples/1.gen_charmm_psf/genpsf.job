@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#SBATCH --partition=debug
+#SBATCH --time=01:00:00
+#SBATCH --job-name=genpsf
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1
+######SBATCH --gres=gpu:1
+
+ulimit -l unlimited
+
+# load CHARMM environment variables
+module load intel/2021.1.2
+module load charmm/c45b2_openmm_intel
+
+# Run the simulation
+export OMP_NUM_THREADS=1
+mpirun -np 1 $CHARMMEXEC -i genpsf.inp -o genpsf.out
+
+# Finished
+echo "FINISHED"
+
+exit
+
