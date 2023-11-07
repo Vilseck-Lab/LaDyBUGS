@@ -1,3 +1,0 @@
-
-Uses CGenFF v4.6
-
