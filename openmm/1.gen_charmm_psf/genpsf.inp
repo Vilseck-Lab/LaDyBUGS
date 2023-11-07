@@ -17,7 +17,6 @@ read rtf append card name @builddir/core.rtf
 read param flex append card name @builddir/full_ligand.prm
 
 !! Reads coordinates and pdb file for the protein 
-bomblev -1
 read sequ pdb name @{builddir}/prot.pdb          !! Update to match your filename
 generate PROT first NTER last CTER setup warn    !! Update to match your SEGID
 read coor pdb resid name @{builddir}/prot.pdb    !! Update to match your filename
@@ -75,7 +74,7 @@ endif
 stream @builddir/lpsites.inp
 
 !! Define MSLD substituent selections
-stream @builddir/msld_sele.inp
+stream @builddir/msld_sele.str
 
 auto angle dihe  !! do not call after deleting sub-sub terms or loading in water
 bomblev -1
