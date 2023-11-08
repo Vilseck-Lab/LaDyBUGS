@@ -32,6 +32,10 @@ for (( a=1; a <= ${dlines}; a++)); do
         atidx=`echo "scale=0; $atidx - 1" | bc`
         nline="$nline $atidx"
     done
-    echo $nline
+    #echo $nline
+    # save to disk too
+    if [ $a == 1 ]; then echo $nline > dihedrals_to_scale.txt
+    else echo $nline >> dihedrals_to_scale.txt
+    fi
 done
 

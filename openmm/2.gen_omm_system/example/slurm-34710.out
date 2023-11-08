@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/nfs/home/jvilseck/git_code/LaDyBUGS/openmm/2.gen_omm_system/example/setupOMMSystem.py", line 96, in <module>
+    if type(force) == PeriodicTorsionForce:
+NameError: name 'PeriodicTorsionForce' is not defined
+
+real	0m13.700s
+user	0m4.265s
+sys	0m0.642s
+FINISHED

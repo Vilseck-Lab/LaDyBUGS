@@ -7,7 +7,7 @@ from sys import stdout, exit, stderr
 from glob import glob
 #import numpy as np
 
-boxsize = BOXSIZE     ## Insert the size of your solvated box here
+boxsize = BOXSIZE     ## Insert the size of your solvated box here (Angstrom)
 prep_root = "prep"
 trunc = False         ## Is the protein a spherically truncated model?
 phiscale = True       ## Scale specific (user-specified) dihedral angles by lambda?
