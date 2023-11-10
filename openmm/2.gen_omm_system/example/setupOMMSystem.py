@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from simtk.openmm.app import PDBFile, CharmmPsfFile, CharmmParameterSet, CutoffPeriodic, HBonds
-from simtk.openmm import NonbondedForce, XmlSerializer, CustomNonbondedForce, CustomBondForce, Discrete2DFunction, CustomExternalForce
+from simtk.openmm import NonbondedForce, XmlSerializer, CustomNonbondedForce, CustomBondForce, Discrete2DFunction, CustomExternalForce, PeriodicTorsionForce
 from simtk.unit import angstrom, nanometer, kilocalorie_per_mole, kilojoule_per_mole, elementary_charge, sqrt, kilojoule, mole, kilocalorie
 from sys import stdout, exit, stderr
 from glob import glob
@@ -10,7 +10,7 @@ from glob import glob
 boxsize = 67.00000    ## Insert the size of your solvated box here (Angstrom)
 prep_root = "prep"
 trunc = False         ## Is the protein a spherically truncated model?
-phiscale = True       ## Scale specific (user-specified) dihedral angles by lambda?
+phiscale = True       ## Scale specific (user-defined) dihedral angles by lambda?
 
 ## Load Charmm PSF/PDB structure files & set up the system ####
 pdb = PDBFile('./patch.pdb')
@@ -36,7 +36,7 @@ param_list = [prep_root+'/toppar/top_all36_prot.rtf',prep_root+'/toppar/par_all3
 #param_list = glob(prep_root+'/toppar/*.rtf')
 #param_list = param_list + glob(prep_root+'/toppar/*.prm')
 
-# ligand specific parameter files, doesn't support site2 quite yet
+# ligand specific parameter files, doesn't support site2 yet
 param_list = param_list + [prep_root+'/core.rtf', prep_root+'/full_ligand.prm']
 param_list = param_list + glob(prep_root+'/site1_sub*_pres.rtf')
 
@@ -90,8 +90,7 @@ if phiscale:
         phis[int(tmp[0])-1].append([int(tmp[1]),int(tmp[2]),int(tmp[3]),int(tmp[4])])
     
     # search system dihedral definitions to match angles with phi-index values
-    # presumably the list of user dihedrals is < the total number of dihedrals
-    # so let's try to read the total number of dihedrals ONCE
+    # try to read the total number of dihedrals only once
     for force in system.getForces(): 
         if type(force) == PeriodicTorsionForce:
             phif = force # identify the torsion force object
@@ -110,7 +109,6 @@ if phiscale:
                     pchk=True
                 else:
                     pass
-                #print(aphi,uphi,rphi,pchk) #rm#
                 if pchk: break
             if pchk: break
         if not pchk: # to avoid indexing errors if no match found
