@@ -1,0 +1,9 @@
+# the following files should be copied into this directory before running sub2q.job:
+#
+#   omm_system.xml
+#   patch.pdb
+#   patch.psf
+#   LambdaStates.txt
+#   phiIDK.txt
+
+

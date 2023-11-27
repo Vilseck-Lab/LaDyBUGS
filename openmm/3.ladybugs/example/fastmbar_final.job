@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#SBATCH --partition=work
+#SBATCH --time=0-05:00:00
+#SBATCH --job-name=fastmbar_final
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1
+#SBATCH --gres=gpu:1
+
+source activate omm102py39
+time python fastmbar_final.py
+
+exit
