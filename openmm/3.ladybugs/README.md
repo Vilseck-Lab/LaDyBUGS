@@ -6,11 +6,11 @@ The following files should be copied into the template directory before running 
 Edit sampleSystem.py and insert the correct value of nsubs. Other file names (e.g., patch.pdb, patch.psf, etc.)
 can be changed to match the current system's needs.
 
-Edit the following variables to change the sampling behavior of LaDyBUGS:
-numStepPerCycle = 100      ## number of Molecular Dynamics steps per Gibbs Sampler step
-numCycle = 1000            ## number of Gibbs Sampler steps between bias updates
-numBiasLoops = 75          ## number of bias updates with FastMBAR (occurs every numCycle steps)
-                           ## total length of sampling = numStepPerCycle * numCycle * numBiasLoops * stepsize (in fs)
+Edit the following variables to change the sampling behavior of LaDyBUGS: <br>
+numStepPerCycle = 100      ## number of Molecular Dynamics steps per Gibbs Sampler step <br>
+numCycle = 1000            ## number of Gibbs Sampler steps between bias updates <br>
+numBiasLoops = 75          ## number of bias updates with FastMBAR (occurs every numCycle steps) <br>
+                           ## total length of sampling = numStepPerCycle * numCycle * numBiasLoops * stepsize (in fs) <br>
 
 For example, changing numBiasLoops to 125 will run a 25 ns simulation
 
