@@ -7,10 +7,10 @@ Edit sampleSystem.py and insert the correct value of nsubs. Other file names (e.
 can be changed to match the current system's needs.
 
 Edit the following variables to change the sampling behavior of LaDyBUGS: <br>
-numStepPerCycle = 100 \t ## number of Molecular Dynamics steps per Gibbs Sampler step <br>
-numCycle = 1000 \t ## number of Gibbs Sampler steps between bias updates <br>
-numBiasLoops = 75 \t ## number of bias updates with FastMBAR (occurs every numCycle steps) <br>
-\t\t ## total length of sampling = numStepPerCycle * numCycle * numBiasLoops * stepsize (in fs) <br>
+numStepPerCycle = 100 ## number of Molecular Dynamics steps per Gibbs Sampler step <br>
+numCycle = 1000 ## number of Gibbs Sampler steps between bias updates <br>
+numBiasLoops = 75 ## number of bias updates with FastMBAR (occurs every numCycle steps) <br>
+## total length of sampling = numStepPerCycle * numCycle * numBiasLoops * stepsize (in fs) <br>
 
 For example, changing numBiasLoops to 125 will run a 25 ns simulation
 
