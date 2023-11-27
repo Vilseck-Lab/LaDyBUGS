@@ -14,14 +14,14 @@ You can use anaconda to set up a python environment for LaDyBUGS.
 https://openmm.org/
 
 2) *Install PyTorch and FastMBAR* <br>
-https://pytorch.org/
+https://pytorch.org/ <br>
 https://fastmbar.readthedocs.io/en/latest/installation.html
 
 3) *Other Requirements* <br>
-Some version of CHARMM is needed to generate the psf and starting pdb files. 
+Some version of CHARMM is needed to generate the psf and starting pdb files.  <br>
 https://academiccharmm.org/program
 
-4) # For ligand perturbations, create a hybrid topology
+# For ligand perturbations, create a hybrid topology
 Use the msld-py-prep repository to create a CHARMM hybrid topology. A tutorial for this process can be found in that repository. <br>
 `https://github.com/Vilseck-Lab/msld-py-prep`
 
