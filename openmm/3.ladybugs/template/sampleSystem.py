@@ -7,6 +7,7 @@ from simtk.openmm import XmlSerializer, MonteCarloBarostat, LangevinIntegrator, 
 from simtk.unit import kelvin, femtoseconds, picoseconds, bar, kilocalorie_per_mole
 from sys import stdout, exit, stderr
 from functions import cleanMEM, sampleLambda, update_exp_biases, calcFastMBAR
+from phi_functions import get_TorsionForce, read_phiIDK, scale_phis
 import numpy as np
 
 ## requisite files
@@ -16,7 +17,7 @@ psf_file = './patch.psf'
 lstate_file = './LambdaStates.txt'
 
 ## MD parameters
-kb = 1.987204259 * 0.001 # kcal/(mol*K)
+kb = 0.0019872041        # kcal/(mol*K)
 temp = 298.15 # temp in kelvin
 pressure = 1.01325 #pressure in bar
 stepsize = 2 * femtoseconds
@@ -40,6 +41,11 @@ f = open(xml_file,'r')
 xml = f.read()
 f.close()
 system = XmlSerializer.deserialize(xml)
+
+## find torsion force group 
+phif = get_TorsionForce(system)
+## load in phi's to scale 
+phiIDK = read_phiIDK(nsubs)
 
 ## the force group to calculate energies of
 fgE=20
@@ -112,19 +118,6 @@ fp=open("aftermin.pdb",'w')
 PDBFile.writeFile(psf.topology,state.getPositions(),fp)
 fp.close()
 
-## # calc Es at every lambda state
-## print("AfterMin Es:",)
-## for lam in range(Lstates.shape[0]):
-##     ibuff=0
-##     for site in range(len(nsubs)):
-##         for sub in range(nsubs[site]):
-##             simulation.context.setParameter("lambda"+str(ibuff+1),Lstates[lam,ibuff])
-##             ibuff+=1
-##     state = simulation.context.getState(getEnergy = True, groups = {fgE})
-##     energyFG = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
-##     print(lam, energyFG,)
-## print("\n")
-
 foutput=open("output",'w')
 foutput.write("Step energy lambda_index\n")
 
@@ -195,6 +188,9 @@ for loop in range(numBiasLoops):
             for sub in range(nsubs[site]):
                 simulation.context.setParameter("lambda"+str(ibuff+1),Lstates[res['idx'],ibuff])
                 ibuff+=1
+        # scale specific alchemical dihedral angles 
+        scale_phis(nsubs,res['idx'],Lstates,phif,phiIDK) # scale phis by lambda(i)
+        phif.updateParametersInContext(simulation.context)
 
         # sample for "numStepPerCycle" MD steps
         simulation.step(numStepPerCycle)
@@ -203,7 +199,8 @@ for loop in range(numBiasLoops):
         state = simulation.context.getState(getEnergy = True, groups = {fgE})
         energyFG = state.getPotentialEnergy().in_units_of(kilocalorie_per_mole)
         foutput.write("%d %f %d" % (i,energyFG.value_in_unit(kilocalorie_per_mole),res['idx']))
-        ##foutput.write(" [") ## for more information per step
+        ## for more information per step
+        ##foutput.write(" [") 
         ##for lam in range(Lstates.shape[0]):
         ##    foutput.write(" %s" % (str(res['prob'][lam])))
         ##foutput.write(" ]")

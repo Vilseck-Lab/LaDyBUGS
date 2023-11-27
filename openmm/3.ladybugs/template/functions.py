@@ -89,10 +89,10 @@ def calcFastMBAR(lambstates,beta,numCycle,numBiasLoops):
         Uunsampled=Uunsampled[0:num_unsampled]
 
     do_cuda=True
-    do_cuda_batch=False
+    do_cuda_batch=True
     do_bootstrap=False
     # construct a FastMBAR object with the energy matrix and the number of configuration array
-    fastmbar = FastMBAR(energy = Usampled, num_conf = Nsampled, cuda=do_cuda, cuda_batch_mode=do_cuda_batch, bootstrap=do_bootstrap) 
+    fastmbar = FastMBAR(energy = Usampled, num_conf = Nsampled, cuda=do_cuda, cuda_batch_mode=do_cuda_batch, bootstrap=do_bootstrap, bootstrap_block_size=1) 
 
     # calculate free energies by solving the MBAR equations
     F = fastmbar.F
@@ -127,21 +127,13 @@ def calcFastMBAR(lambstates,beta,numCycle,numBiasLoops):
     if do_bootstrap:
         rSD = SDcomplete*1/beta
 
-    # make first value the relative 0.0 (if it isn't already)
-    rF=rF-rF[0]
-
     # remove "reduction"
     rF = Fcomplete*1/beta
     if do_bootstrap:
         rSD = StDev*1/beta
  
     # make first value the relative 0.0 (if it isn't already)
-#    if N_k[0] == 0:
     rF=rF-rF[0]
- 
-    # # debug print
-    # print("CHECK rF",rF.shape)
-    # print(rF)
  
     # print all FEs to a file and new_biases for additional runs
     fp=open("mbar_results/mbar."+str(loop)+".txt",'w')

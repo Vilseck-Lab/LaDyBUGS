@@ -7,9 +7,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
 #SBATCH --gres=gpu:1
-#####SBATCH --array=0
 
-conda activate omm100
-python fastmbar_final.py
+source activate omm102py39
+time python fastmbar_final.py
 
 exit

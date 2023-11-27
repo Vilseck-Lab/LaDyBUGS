@@ -3,19 +3,16 @@ import torch
 from FastMBAR import *
 import glob
 
-# THIS SCRIPT ASSUMES THAT ALL STATES ARE SAMPLED
-
-# 2022-05-02 -> Currently, there is a bug in the FastMBAR library where calculation with bootstrapping does not give consistent final values. Running FastMBAR without bootstrapping provides consistent results.
-
-
 dir_list = glob.glob('run-*')
 num_lambstates = 141
 num_endstates = 6 # number of states that will be reported in output_file_name
-output_file_name = 'final_results.txt'
+output_file_name = 'mbar_results.txt'
 
 temp = 298.15 #  in K, make sure this matches your production runs
-kb = 1.987204259 * 0.001 # kcal/(mol*K)
+kb = 0.0019872041        # kcal/(mol*K)
 
+block_size = 1           # keep at 1 for LaDyBUGS
+block_rep  = 200
 
 # refers to each Gibbs sampling loop in LaDyBUGS
 prod_start = 0
@@ -56,22 +53,24 @@ def gather_MBAR_inputs(directory_list, num_lambstates, prod_start, prod_end):
 
 def calcFastMBAR(beta,N_k, ener):
     do_cuda=True
-    do_cuda_batch=False
-    do_bootstrap=True
+    do_cuda_batch=True
 
     U_k = ener.T * beta
     
-    # construct FastMBAR object
-    fastmbar = FastMBAR(energy = U_k, num_conf = N_k, cuda=do_cuda, cuda_batch_mode=do_cuda_batch, bootstrap=do_bootstrap)
-
-    # get results
+    # == run FastMBAR: (i) get exact value
+    do_bootstrap=False
+    fastmbar = FastMBAR(energy = U_k, num_conf = N_k, cuda=do_cuda, cuda_batch_mode=do_cuda_batch, bootstrap=do_bootstrap, bootstrap_block_size = block_size, bootstrap_num_rep = block_rep) 
     F = fastmbar.F
-    if do_bootstrap == True:
+
+    # == run FastMBAR: (ii) get bootstrapped uncertainties
+    do_bootstrap=True
+    fastmbar = FastMBAR(energy = U_k, num_conf = N_k, cuda=do_cuda, cuda_batch_mode=do_cuda_batch, bootstrap=do_bootstrap, bootstrap_block_size = block_size, bootstrap_num_rep = block_rep) 
+    if do_bootstrap:
         F_std = fastmbar.F_std
 
     # remove "reduction"
     rF = F / beta
-    if do_bootstrap == True:
+    if do_bootstrap:
         rSD = F_std / beta
 
     # normalize to 1st lambda state

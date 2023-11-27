@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 
 # Load OpenMM environment
-source activate omm100
+source activate omm102py39
 
 # Setup necessary files & directories
 cp ../1.gen_charmm_psf/patch.* ./

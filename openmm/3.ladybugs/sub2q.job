@@ -7,10 +7,10 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
 #SBATCH --gres=gpu:1
-#SBATCH --array=0-0
+#SBATCH --array=0-2
 
 # Load OpenMM Environment
-conda activate omm100
+source activate omm102py39
 
 # Each job array is an independent, duplicate GSLD simulation
 ID=`printf "%02d" ${SLURM_ARRAY_TASK_ID}`
