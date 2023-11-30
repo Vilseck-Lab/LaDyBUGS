@@ -11,8 +11,8 @@ Edit `generate_LambdaStates.py` and give it the correct nsubs value. Run this sc
 
 To scale specific dihedral angles by lambda, set `phiscale=True` in `setupOMMSystem.py` <br>
 If `phiscale=True` in `setupOMMSystem.py`, take these additional steps to scale specific dihedral angles by lambda:
-  - write out the `dihedrals_to_scale.names.txt` file to list dihedral angles that should be scaled and which substituent they belong to <br>
-        syntax: "Substituent# AtomName1 AtomName2 AtomName3 AtomName4" <br>
+  - write the `dihedrals_to_scale.names.txt` file to list dihedral angles that should be scaled and which substituent they belong to. <br>
+        *SYNTAX:* "Substituent# AtomName1 AtomName2 AtomName3 AtomName4" <br>
         ex) "1 C033 C051 C018 C025"      (for scaling a dihedral on substituent 1) <br>
   - run the `get_dih_idx.sh` script to print a `dihedrals_to_scale.txt` file. This file will be read by `setupOMMSystem.py`.
 

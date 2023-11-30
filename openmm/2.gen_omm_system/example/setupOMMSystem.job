@@ -11,8 +11,8 @@
 source activate omm102py39
 
 # Setup necessary files & directories
-#cp ../1.gen_charmm_psf/patch.* ./
-#ln -s ../1.gen_charmm_psf/prep/ ./
+cp ../1.gen_charmm_psf/patch.* ./
+ln -s ../1.gen_charmm_psf/prep/ ./
 
 # Run the simulation
 time python setupOMMSystem.py
