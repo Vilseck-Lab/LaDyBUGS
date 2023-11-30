@@ -2,11 +2,11 @@
 After the CHARMM psf, pdb, and OpenMM xml files have been generated, a LaDyBUGS simulation can begin.
 
 The following files should be copied into the template directory before running `sub2q.job`:<br>
-    - omm_system.xml
-    - patch.pdb
-    - patch.psf
-    - LambdaStates.txt
-    - phiIDK.txt (if dihedrals will be scaled by lambda)
+- omm_system.xml
+- patch.pdb
+- patch.psf
+- LambdaStates.txt
+- phiIDK.txt (if dihedrals will be scaled by lambda)
 
 Edit `sampleSystem.py` and insert the correct value of nsubs. Other file names (e.g., patch.pdb, patch.psf, etc.)
 can be changed to match the current system's needs (if they differ from these default names).
