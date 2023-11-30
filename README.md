@@ -24,6 +24,7 @@ https://academiccharmm.org/program
 ### For ligand perturbations, create a hybrid topology
 Use the msld-py-prep repository to create a CHARMM hybrid ligand topology. A tutorial for this process can be found in that repository: 
 https://github.com/Vilseck-Lab/msld-py-prep <br>
+
 Additional msld-py-prep tutorials can be found from the MSLD workshop (https://github.com/BrooksResearchGroup-UM/MSLD-Workshop). And a video tutorial of how to use msld-py-prep can also be found here: https://iu.mediaspace.kaltura.com/media/t/1_r6uv3otn/309046192 
 
 *Note:* Ensure that the files in `prep/toppar/` match the version of cgenff that you use for ligand CGenFF parameterization. If they do not match, you will likely encounter "missing parameter" error messages from CHARMM.

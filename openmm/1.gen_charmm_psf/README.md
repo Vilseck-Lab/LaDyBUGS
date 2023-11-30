@@ -1,4 +1,4 @@
-# Generate CHARMM psf and pdb files
+## Generate CHARMM psf and pdb files
 This step requires the use of CHARMM. CHARMM can be obtained following the instructions listed here:
 https://academiccharmm.org/program
 
