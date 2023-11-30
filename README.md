@@ -1,7 +1,7 @@
 # Lambda Dynamics with Bias-Updated Gibbs Sampling (LaDyBUGS)
 LaDyBUGS is an efficient alchemical free energy method for computing free energy differences between two or more chemical states. LaDyBUGS uses Gibbs sampling to sample alchemical transformations between many chemical states and uses a dynamic bias to encourage equivalent sampling of all discrete lambda states accompanying these transformations. More information about LaDyBUGS can be found here in the LaDyBUGS article.
 
-In this repository, we provide scripts for performing ligand perturbations with LaDyBUGS using OpenMM and CHARMM force fields. Setup scripts are presented in 1.gen_charmm_psf and 2.gen_omm_system. Production scripts can be found in 3.ladybugs. In `example` directories, we provide example files for performing a LaDyBUGS calculation on a series of MUP1 ligands bound to MUP1. 
+In this repository, we provide scripts for performing ligand perturbations with LaDyBUGS using OpenMM and CHARMM force fields. Setup scripts are presented in `1.gen_charmm_psf` and `2.gen_omm_system`. Production scripts can be found in `3.ladybugs`. In `example` directories, we provide example files for performing a LaDyBUGS calculation on a series of MUP1 ligands bound to MUP1. 
 
 
 # Installation
