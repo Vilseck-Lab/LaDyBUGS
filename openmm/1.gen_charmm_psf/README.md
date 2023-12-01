@@ -12,5 +12,5 @@ Edit nsubs to list of the number of substituents to be sampled in a LaDyBUGS cal
 
 Double check that all information in genpsf.inp matches the needs of your system. Then submit the genpsf.job script to slurm (or your local queue scheduler) to generate your CHARMM `patch.psf` and `patch.pdb` files.
 
-Finally, run `get_alchem_idx.py` in this directory after `genpsf.job` finishes. This script assists our setup in `../2.gen_omm_system` and identifies the atom numbers of all alchemical atoms in each substituent. We will want to insert the 0-indexed values in `../2.gen_omm_system/setupOMMSystem.py`. It is helpful to write the output of this file to disk for easy reference (see `example/idx.txt` for an example).
+Finally, run `get_alchem_idx.py` in this directory after `genpsf.job` finishes. This script assists our setup in `../2.gen_omm_system` and identifies the atom numbers of all alchemical atoms in each substituent. We will want to insert the 0-indexed values in `../2.gen_omm_system/setupOMMSystem.py`. It is helpful to write the output of this script to disk for easy reference (see `example/idx.txt` for an example).
 
