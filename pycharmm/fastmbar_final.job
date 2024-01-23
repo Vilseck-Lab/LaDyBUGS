@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#SBATCH --partition=work
+#SBATCH --time=1-00:00:00
+#SBATCH --job-name=fastmbar_final
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=4
+#SBATCH --gres=gpu:1
+#SBATCH --mem=0
+
+# Load virtual environment
+source ~/.bashrc
+source activate pychm_091123
+
+
+echo "PROT"
+time python fastmbar_ldb.py prot
+echo "WATER"
+time python fastmbar_ldb.py water
+
+exit

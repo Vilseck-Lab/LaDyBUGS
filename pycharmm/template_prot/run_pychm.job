@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#SBATCH --partition=work
+#SBATCH --time=15-00:00:00
+#SBATCH --job-name=pychm_pfk
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1
+#SBATCH --gres=gpu:1
+
+# Load virtual environment
+source ~/.bashrc
+source activate pychm_091123
+
+
+# Run the simulation
+time python blade_ladybugs.py
+
+# Finished 
+echo "FINISHED"
+
+exit
